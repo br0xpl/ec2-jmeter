@@ -8,6 +8,9 @@ pk=~/.ssh/id_rsa_ec2
 #region=eu-central-1
 jmeteropt=-Gdebug=true
 
+[jmeter]
+binpath=~/apache-jmeter-3.0/bin/
+
 [loggers]
 keys=root,ec2
 

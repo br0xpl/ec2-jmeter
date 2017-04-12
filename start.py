@@ -53,22 +53,24 @@ def runCommand(command, out=None, KeyboardInterruptCmd=None):
 def start(testfile, instances, out, files=[]):
     state='extracting ip address'
     try:
+        if not 'jmeter' in ec2.config:
+            ec2.config['jmeter'] = {}
         ip = instances[0].public_ip_address
         logger.info("Copying test file:")
         state='sending test files'
-        runCommand("scp %s -o StrictHostKeyChecking=no %s ubuntu@%s:~/" % (ec2.config['ec2'].get('sshopt'),testfile,ip))
+        runCommand("scp %s -o StrictHostKeyChecking=no %s %s@%s:~/" % (ec2.config['ec2'].get('sshopt'),testfile,ec2.config['ec2'].get('username','ubuntu'),ip))
 
         logger.info("Running test:")
         state='running test'
         ips = ",".join([i.private_ip_address for i in instances])
         logger.debug("IPs: %s"%ips)
-        runCommand("ssh %s -o StrictHostKeyChecking=no ubuntu@%s \"~/apache-jmeter-3.0/bin/jmeter -n -r -t %s -R%s %s\"" % (ec2.config['ec2'].get('sshopt',''), ip, testfile, ips, ec2.config['ec2'].get('jmeteropt','')), out, "ssh %s -o StrictHostKeyChecking=no ubuntu@%s \"~/apache-jmeter-3.0/bin/shutdown.sh;\"" % (ec2.config['ec2'].get('sshopt',''), ip) )
+        runCommand("ssh %s -o StrictHostKeyChecking=no %s@%s \"%sjmeter -n -r -t %s -R%s %s\"" % (ec2.config['ec2'].get('sshopt',''),ec2.config['ec2'].get('username','ubuntu'), ip,ec2.config['jmeter'].get('binpath','~/apache-jmeter-3.0/bin/'), testfile, ips, ec2.config['ec2'].get('jmeteropt','')), out, "ssh %s -o StrictHostKeyChecking=no %s@%s \"%sshutdown.sh;\"" % (ec2.config['ec2'].get('sshopt',''),ec2.config['ec2'].get('username','ubuntu'), ip, ec2.config['jmeter'].get('binpath','~/apache-jmeter-3.0/bin/')) )
 
         for fn in files:
             logger.info("Copying back files (results):")
             state='retrieving results'
-            runCommand("scp -r %s -o StrictHostKeyChecking=no ubuntu@%s:~/%s ./" % (ec2.config['ec2'].get('sshopt',''),ip,fn))
-            runCommand("ssh %s -o StrictHostKeyChecking=no ubuntu@%s \"rm -rf %s\"" % (ec2.config['ec2'].get('sshopt',''),ip,fn))
+            runCommand("scp -r %s -o StrictHostKeyChecking=no %s@%s:~/%s ./" % (ec2.config['ec2'].get('sshopt',''),ec2.config['ec2'].get('username','ubuntu'),ip,fn))
+            runCommand("ssh %s -o StrictHostKeyChecking=no %s@%s \"rm -rf %s\"" % (ec2.config['ec2'].get('sshopt',''),ec2.config['ec2'].get('username','ubuntu'),ip,fn))
         
     except subprocess.CalledProcessError as ex:
         logger.error("Error %s." % state)
@@ -87,7 +89,7 @@ def propagate(files,instances):
             for fn in files:
                 logger.info("Copying %s to %s:"%(fn,ip))
                 state='sending %s to %s'%(fn,ip)
-                runCommand("scp -o StrictHostKeyChecking=no -r %s %s ubuntu@%s:~/" % (ec2.config['ec2'].get('sshopt',''),fn,ip))
+                runCommand("scp -o StrictHostKeyChecking=no -r %s %s %s@%s:~/" % (ec2.config['ec2'].get('sshopt',''),ec2.config['ec2'].get('username','ubuntu'),fn,ip))
     except subprocess.CalledProcessError as ex:
         logger.error("Error %s." % state)
         exit(1)

@@ -1,6 +1,11 @@
-1. Setup maszyny ubuntu z openjdk-8-jre. 
-2. Kopiujemy tam pliki apache-jmeter-3.0/
-3. Setup jmeter-server by startował przy starcie. Do /etc/rc.local: 
+1. Setup Ubuntu VM with openjdk-8-jre installed in ec2. 
+2. Copy apache-jmeter-3.0/ to home direcotry of user ubuntu.
+3. Setup jmeter-server to start after startup. In /etc/rc.local: 
 sudo -u ubuntu nohup bash -c "cd /home/ubuntu/; while true; do /home/ubuntu/apache-jmeter-3.0/bin/jmeter-server > /home/ubuntu/jmeter-server.log 2> /home/ubuntu/jmeter-server.err; done;" > /dev/null 2> /dev/null &
-4. Poweroff maszyny i wchodzimy w konsole EC2 i robimy AMI (Image -> Create Image)
-5. Wchodzimy w AMIs i tam pobieramy AMI-id dla naszej maszynki.
+4. Poweroff the machine and in EC2 create an AMI (Image -> Create Image)
+5. Go to AMI in EC2 console and read the AMI-id. Put it into the config file.
+6. Setup your credentials in config or in .aws
+7. Run new instances e.g.: ./ec2 create 2
+8. Run tests: ./start.py start test.jmx output1.txt output2.txt
+9. Terminate instances: ./ec2 terminate
+10. Additionally, you can propagate files to all servers using propagate (in start.py) and ssh, list (in ec2.py). 

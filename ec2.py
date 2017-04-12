@@ -94,7 +94,7 @@ def sshCmd(args):
         logger.error("No such instance found: %s." % args.instanceId)
         exit(1)
     ip = instance.public_ip_address
-    subprocess.run("ssh %s -o StrictHostKeyChecking=no ubuntu@%s"%(config['ec2'].get('sshopt',''),ip),shell=True)
+    subprocess.run("ssh %s -o StrictHostKeyChecking=no %s@%s"%(config['ec2'].get('sshopt',''),config['ec2'].get('username','ubuntu'),ip),shell=True)
             
 def print_usage(args):
     parser.print_usage(None)
