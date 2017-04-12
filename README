@@ -1,0 +1,6 @@
+1. Setup maszyny ubuntu z openjdk-8-jre. 
+2. Kopiujemy tam pliki apache-jmeter-3.0/
+3. Setup jmeter-server by startował przy starcie. Do /etc/rc.local: 
+sudo -u ubuntu nohup bash -c "cd /home/ubuntu/; while true; do /home/ubuntu/apache-jmeter-3.0/bin/jmeter-server > /home/ubuntu/jmeter-server.log 2> /home/ubuntu/jmeter-server.err; done;" > /dev/null 2> /dev/null &
+4. Poweroff maszyny i wchodzimy w konsole EC2 i robimy AMI (Image -> Create Image)
+5. Wchodzimy w AMIs i tam pobieramy AMI-id dla naszej maszynki.
